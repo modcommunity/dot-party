@@ -180,8 +180,55 @@ func describe() -> String:
 	return "website-city at %s" % api_base
 
 
+## Whether the last request failed at the SERVICE rather than being refused by it, so
+## an outage is logged on its edges: the client heartbeats, and a WARN per beat while the
+## site is down would bury the line that says when it went.
+var _failing: bool = false
+
+## Codes the site uses to say no. Those are the rules working -- the player is told --
+## and are not the service failing.
+const _REFUSALS := [
+	DotError.CODE_CONFLICT, DotError.CODE_AUTH, DotError.CODE_RATE_LIMITED,
+	DotError.CODE_INVALID, DotError.CODE_FORBIDDEN,
+]
+
+
 ## One request, unwrapped from the app API's envelope. Value: the envelope's [code]data[/code].
+##
+## Logged here because every call in this class passes through it. A refusal is DEBUG;
+## the service failing -- the network, a 5xx, an answer that is not an envelope, a site
+## with no party routes -- is WARN when it starts, DEBUG while it lasts and INFO when a
+## call succeeds again. WARN rather than ERROR: parties are an extra on top of playing,
+## and a player without one can still play.
 func _call(method: String, path: String, body: Dictionary = {}, query: Dictionary = {}) -> DotResult:
+	var res := await _call_inner(method, path, body, query)
+
+	if res.ok:
+		if _failing:
+			_failing = false
+			DotLog.info(CHANNEL, "the party service is answering again", {"api": api_base})
+		return res
+
+	var fields := {
+		"call": "%s %s" % [method, path],
+		"code": res.code(),
+		"error": res.error.message if res.error != null else "",
+		"site_code": res.error.detail if res.error != null else "",
+	}
+
+	if res.code() in _REFUSALS:
+		DotLog.debug(CHANNEL, "the party service refused", fields)
+	elif _failing:
+		DotLog.debug(CHANNEL, "the party service is still failing", fields)
+	else:
+		_failing = true
+		fields["api"] = api_base
+		DotLog.warn(CHANNEL, "the party service is failing", fields)
+
+	return res
+
+
+func _call_inner(method: String, path: String, body: Dictionary = {}, query: Dictionary = {}) -> DotResult:
 	if request_fn.is_valid() or client == null:
 		var full := path
 		if not query.is_empty():
