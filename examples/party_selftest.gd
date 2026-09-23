@@ -16,7 +16,7 @@ extends Node
 ## [/codeblock]
 
 const SECTIONS := 9
-const CHECKS := 132
+const CHECKS := 133
 
 var _passed := 0
 var _failed := 0
@@ -629,6 +629,7 @@ func _test_app_backend() -> void:
 	answers.append(DotResult.failure(DotError.from_http(404, "")))
 	var missing := await app.heartbeat("4471")
 	_check(not missing.ok and missing.error.message.contains("no app party routes yet"), "a 404 says the site has not grown the routes yet")
+	_check(missing.error.detail == "", "and leaves the refusal-key field empty, since there is no key to render")
 
 	_check(not (await app.fetch("x1")).ok, "a malformed id is refused before a request is made")
 

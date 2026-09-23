@@ -258,7 +258,7 @@ func _call_inner(method: String, path: String, body: Dictionary = {}, query: Dic
 	else:
 		res = await client.call("post_app", path, body)
 	if not res.ok and res.error != null and res.error.http_status == 404 and res.error.detail == "":
-		return res.wrap("the site has no app party routes yet; see dot-party's docs/backbone-contract.md")
+		return _no_routes(res)
 	return res
 
 
@@ -286,7 +286,7 @@ func _explain(raw: DotResult) -> DotResult:
 	if parsed is Dictionary:
 		return _refusal(parsed as Dictionary, e.http_status, e.code)
 	if e.http_status == 404:
-		return raw.wrap("the site has no app party routes yet; see dot-party's docs/backbone-contract.md")
+		return _no_routes(raw)
 	return raw
 
 
@@ -304,4 +304,19 @@ func _refusal(env: Dictionary, status: int, fallback_code: String = DotError.COD
 	err.http_status = status
 	if env.get("retryAfter") != null:
 		err.retry_after = float(env["retryAfter"])
+	return DotResult.failure(err)
+
+
+## A 404 from a site without the party routes, with [member DotError.detail] left EMPTY.
+##
+## Not [method DotResult.wrap]: that puts the wrapped error's text in [code]detail[/code],
+## which is the field every backend here reserves for the site's refusal key, so a caller
+## rendering the key got "[invalid] Not found." instead of nothing to render.
+static func _no_routes(res: DotResult) -> DotResult:
+	var err := DotError.make(
+		res.error.code if res.error != null else DotError.CODE_INVALID,
+		"the site has no app party routes yet; see dot-party's docs/backbone-contract.md"
+	)
+	if res.error != null:
+		err.http_status = res.error.http_status
 	return DotResult.failure(err)
