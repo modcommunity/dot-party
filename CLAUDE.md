@@ -86,7 +86,7 @@ When the player is no longer in any party, `mine()` answers null, which says not
 
 - **The site's routes.** Specified, not written; website-city is its own repository with its own migrations and tests.
 - **A party UI.** dot-ui draws; this emits.
-- **Party voice or party chat.** dot-voice and dot-chat own routing. **dot-chat's `MEMBERS` scope cannot do party chat yet**: its `membership_fn(peer, channel)` does not know the sender, so a "party" channel reaches every party member on the server rather than the sender's party. `DotPartyServer.same_party()` is the question it would need to ask.
+- **Party voice or party chat.** dot-voice and dot-chat own routing. dot-chat's `MEMBERS` scope could not do party chat — `membership_fn(peer, channel)` does not know the sender — and now has a grouped channel for it: `DotChatChannel.group(&"party", "Party")` with `DotChatRouter.group_fn` answering `DotPartyServer.party_of(uid)`. dot-server-deploy's `TmcParty` wires exactly that into every game's router.
 - **The server finder.** The site's `PartySearch` loosens a party's criteria one step per pass against the `Server` table; that is the site's job and dot-matchmaking is the player-queue half.
 
 ## Validating
