@@ -282,7 +282,7 @@ func _explain(raw: DotResult) -> DotResult:
 	var e := raw.error
 	if e == null:
 		return raw
-	var parsed: Variant = JSON.parse_string(e.detail) if e.detail != "" else null
+	var parsed: Variant = _envelope_of(e.detail)
 	if parsed is Dictionary:
 		return _refusal(parsed as Dictionary, e.http_status, e.code)
 	if e.http_status == 404:
@@ -320,3 +320,17 @@ static func _no_routes(res: DotResult) -> DotResult:
 	if res.error != null:
 		err.http_status = res.error.http_status
 	return DotResult.failure(err)
+
+## A refusal's body as a Dictionary, or null — without the engine's own ERROR line.
+##
+## The detail is only ever an envelope when it is a JSON object. A transport failure
+## ("engine error 3") and a proxy's HTML error page are text, and [code]JSON.parse_string[/code]
+## prints an unsuppressible ERROR for each before answering null — found by driving the
+## backend at a live site whose request failed before it was sent.
+static func _envelope_of(detail: String) -> Variant:
+	if not detail.strip_edges().begins_with("{"):
+		return null
+	var json := JSON.new()
+	if json.parse(detail) != OK:
+		return null
+	return json.data
