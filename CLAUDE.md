@@ -99,4 +99,4 @@ done
 timeout 120 godot --headless --path . res://examples/party_selftest.tscn
 ```
 
-9 sections, 132 checks, no network. **Section 7 is the one to keep**: a private booking admits only its party and still honours the ban list behind it, a public one holds seats while the party loads, and a backbone outage leaves the booking in force.
+9 sections, 135 checks, no network. **Section 7 is the one to keep**: a private booking admits only its party and still honours the ban list behind it, a public one holds seats while the party loads, and a backbone outage leaves the booking in force.

@@ -16,7 +16,7 @@ extends Node
 ## [/codeblock]
 
 const SECTIONS := 9
-const CHECKS := 133
+const CHECKS := 135
 
 var _passed := 0
 var _failed := 0
@@ -641,6 +641,34 @@ func _test_app_backend() -> void:
 	var refused := await via_auth.join("4471")
 	_check(not refused.ok and refused.error.detail == "party.join.deny.full", "and a refusal keeps the site's key")
 	_check(not (await app.invite("4471", PackedStringArray(range(26).map(func(i: int) -> String: return str(i))))).ok, "and so are twenty-six invites at once")
+
+	# The site's snapshot carries no `connect`; only its ready view does. A client that
+	# read the address off `mine` alone was never sent anywhere against the real site.
+	var ready_party := {"id": "4471", "stage": "READY", "endTime": null, "members": [
+		{"userId": "u1", "role": "HOST", "state": "JOINED"},
+	]}
+	var ready_view := {"total": 1, "ready": 1, "connect": {"serverId": 12, "serverName": "Lobby", "url": "dot://lobby.example:6090"}}
+	var site := DotPartyBackendApp.new("https://tmc.example/api/app/v1")
+	var asked: Array = []
+	site.request_fn = func(method: String, path: String, _body: Dictionary) -> DotResult:
+		asked.append("%s %s" % [method, path])
+		if path == "party/mine":
+			return DotResult.success({"ok": true, "data": ready_party.duplicate(true)})
+		if path == "party/4471/ready":
+			return DotResult.success({"ok": true, "data": ready_view})
+		return DotResult.success({"ok": true, "data": null})
+	var follower := DotPartyClient.new()
+	follower.backend = site
+	follower.user_id = "u1"
+	follower.follow = false
+	add_child(follower)
+	follower.set_process(false)
+	var sent_to: Array = []
+	follower.connect_requested.connect(func(url: String, _i: Dictionary) -> void: sent_to.append(url))
+	await follower.refresh()
+	_check(sent_to == ["dot://lobby.example:6090"], "against the site, a ready round's address comes from its ready view")
+	_check(asked.has("GET party/4471/ready"), "which is asked only because the snapshot did not say")
+	follower.queue_free()
 
 
 # --- helpers ------------------------------------------------------------------

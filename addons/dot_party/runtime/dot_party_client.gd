@@ -114,8 +114,35 @@ func refresh() -> DotResult:
 		_busy = false
 		if old.ok and old.value != null:
 			next = old.value
+	if next != null and next.stage == DotParty.Stage.READY and next.connect_info.is_empty():
+		await _fill_connect(next)
 	apply_snapshot(next)
 	return DotResult.success(party)
+
+
+## Where a ready round wants its members, when the snapshot did not say.
+##
+## website-city's party snapshot ([code]GET party/mine[/code], [code]GET party/{id}[/code])
+## carries no [code]connect[/code]: the address is only in the ready view
+## ([code]GET party/{id}/ready[/code]), which is built for a JOINED member alone because it
+## discloses the server's address. So against the site a READY party read from
+## [code]mine[/code] had nowhere to go, [method _maybe_follow] never fired, and
+## [code]party/connected[/code] was never reported -- the round waited for a player who was
+## never sent. Asking the ready view is also what the site's own ready screen does, and
+## reading it is what fires an auto-start whose countdown lapsed. The local hub puts the
+## address in the snapshot already, so this asks nothing of it.
+func _fill_connect(next: DotParty) -> void:
+	_busy = true
+	var res: DotResult = await backend.ready_state(next.id)
+	_busy = false
+	if not res.ok or not (res.value is DotPartyReady):
+		DotLog.debug(CHANNEL, "the ready view did not say where to connect", {
+			"party": next.id, "detail": str(res.error) if res.error != null else "",
+		})
+		return
+	var view: DotPartyReady = res.value
+	if not view.connect_info.is_empty():
+		next.connect_info = view.connect_info.duplicate()
 
 
 ## Turns a new snapshot into signals. [param next] null means "in no party".

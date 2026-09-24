@@ -75,7 +75,7 @@ Rate limits should be the tRPC procedures' own (`join` 30/5 min, `reserve.reques
 
 ### Why the connect URL matters
 
-`PartyReadyView.connect.url` is the site's resolved connect template for the app. `DotPartyClient` hands it to the game's `connect_fn` once per ready round and then calls `party/connected`, which is what lets the site start the round the moment the last member is in.
+`PartyReadyView.connect.url` is the site's resolved connect template for the app. `DotPartyClient` hands it to the game's `connect_fn` once per ready round and then calls `party/connected`, which is what lets the site start the round the moment the last member is in. **The party snapshot does not carry it**: `GET party/mine` and `GET party/{id}` have no `connect`, because the address is only built for a JOINED member in the ready view. So `DotPartyClient.refresh` asks `GET party/{id}/ready` whenever the snapshot is READY with no address — without that it never followed a round against the real site, which the suite driving the local hub (whose snapshot does carry it) could not see.
 
 ## What dot-party duplicates on purpose
 
