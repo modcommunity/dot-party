@@ -1,6 +1,6 @@
 # The backbone contract
 
-What dot-party speaks, split into the routes website-city **already serves** and the routes it **needs to add**. Every added route is a thin wrapper over a function the site already has, and uses that function's own input names, so the site-side work is plumbing rather than design.
+What dot-party speaks, split into the routes website-city **already served** and the routes **added for this addon**. The added ones are implemented on website-city branch `feat/game-backbone` (not yet merged or deployed) and were driven from Godot against a live dev server: party create, join, the alreadyIn refusal, the roster, the ready view, a kick that the kicked player's `DotPartyClient` reports as a kick, and a private booking read by `DotPartyReservations` that admits the host and refuses a stranger. Every added route is a thin wrapper over a function the site already has, and uses that function's own input names, so the site-side work is plumbing rather than design.
 
 ## Already served — the game server's half
 
@@ -17,7 +17,7 @@ Under `/api/integration/v1`, authenticated by an integration credential (`Author
 
 Shapes are the site's, documented in `website-city/docs/api/integration-api.md`. dot-party's suite parses the `GET party/{id}` example from that document verbatim.
 
-## To add — a game server learning it has been booked
+## Added — a game server learning it has been booked
 
 The site's own audit: *"a private (locked) reservation is never sent to the game server through any integration endpoint."* This is the one route that closes that gap.
 
@@ -42,7 +42,7 @@ The booking this server is under right now, and who it is for. The server is the
 
 **Why members carry `userId`:** a dot-server session's uid after dot-auth is `backbone:<userId>`. Matching on display names would let a stranger in by calling themselves the host.
 
-## To add — the player's half
+## Added — the player's half
 
 Under `/api/app/v1`, authenticated by the player's app token (`Authorization: Bearer <AppToken>`), in the app API's envelope: `{ ok: true, data }` or `{ ok: false, code, message, retryAfter? }` (`src/types/app-api/contract.ts`). For a refusal, `code` is the site's i18n key — `party.join.deny.full` — exactly as the tRPC procedures already throw it. Each route must allow `GAME` tokens (`allowGame`), because that is the token a game holds.
 

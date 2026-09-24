@@ -63,11 +63,9 @@ A joining client names its party. The server fetches that party's roster and che
 
 `groups(uids)` returns connected players grouped by party, for a team balancer that should keep parties together.
 
-## What the website still needs
+## The website routes
 
-The server half uses routes the website already serves. **The player half does not exist on the website yet.** Parties are managed on the website through its own session login, which a game client does not have, and the app API a game signs in to has no party routes. The same is true of telling a game server that it has been booked.
-
-[docs/backbone-contract.md](docs/backbone-contract.md) specifies the missing routes. Each one wraps a function the website already has, and uses the input names the website already uses. Until they exist, the app backend fails each call with a message that says so, and `DotPartyBackendLocal` gives a game the same behaviour offline.
+The server's party tracking uses routes the website has long served. The player's half, and the route that tells a game server it has been booked, were added to the website for this asset: they are written and tested, and **not yet deployed**. [docs/backbone-contract.md](docs/backbone-contract.md) lists every route. Against a website without them, the app backend fails each call with a message that says so, and `DotPartyBackendLocal` gives a game the same behaviour offline.
 
 ## Installing
 

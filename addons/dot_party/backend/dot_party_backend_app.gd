@@ -3,15 +3,16 @@ extends DotPartyBackend
 
 ## website-city, as the signed-in player.
 ##
-## [b]Speaks a contract the site does not serve yet.[/b] The site's parties are complete —
+## [b]Speaks routes added to the site for this addon.[/b] The site's parties are complete —
 ## membership, invites, the ready round, reservations — but only through tRPC behind the
 ## website's session cookie, which a game client does not have. A game client holds an
 ## app token from dot-auth's device grant, and [code]/api/app/v1[/code] has no party routes
-## at all. The routes this calls are specified in [code]docs/backbone-contract.md[/code]:
+## until these. The routes this calls are listed in [code]docs/backbone-contract.md[/code]:
 ## each one is a thin wrapper over a function website-city already has
 ## ([code]JoinParty[/code], [code]LeaveParty[/code], [code]SetPartyReady[/code],
 ## [code]ReserveServerForParty[/code]…), with the site's own input names, so the site half
-## is plumbing rather than design. Until it exists every call fails with a 404 that says so.
+## is plumbing rather than design. Against a site without them, every call fails with a 404
+## that says so.
 ##
 ## [b]The app API's envelope, not the integration API's.[/b] [code]{ok: true, data}[/code]
 ## on success and [code]{ok: false, code, message, retryAfter}[/code] on failure, as
