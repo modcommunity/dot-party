@@ -234,6 +234,8 @@ func describe_lines() -> PackedStringArray:
 
 func _session(event: String, player: Dictionary) -> void:
 	var row := _wire_player(player)
+	if row.is_empty():
+		return
 	var targets := PackedStringArray()
 	var uid := str(player.get("uid", ""))
 	var pid := party_of(uid)
@@ -251,6 +253,8 @@ func _match(event: String, map_name: String, game_mode: String, rows: Array) -> 
 	for r in rows:
 		var d: Dictionary = r
 		var w := _wire_player(d)
+		if w.is_empty():
+			continue
 		if d.has("place"):
 			w["place"] = int(d["place"])
 		players.append(w)
@@ -276,7 +280,11 @@ func _players() -> Array:
 		return out
 	for p in raw:
 		if p is Dictionary:
-			out.append(_wire_player(p as Dictionary))
+			var wired := _wire_player(p as Dictionary)
+			# A player with no name is left out rather than sent: the site requires one,
+			# and a single empty name refused the WHOLE `party/state` report.
+			if not wired.is_empty():
+				out.append(wired)
 		if out.size() >= 256:
 			# The site takes 256 per report. A bigger server reports its first 256 rather
 			# than having every report refused.
@@ -288,7 +296,10 @@ func _players() -> Array:
 ## by name and steam id, and a server that shipped uids would be handing the site's own
 ## account ids back to it tagged with which server they were seen on.
 static func _wire_player(p: Dictionary) -> Dictionary:
-	var out := {"name": str(p.get("name", "")).substr(0, 128)}
+	var name := str(p.get("name", "")).strip_edges().substr(0, 128)
+	if name == "":
+		return {}
+	var out := {"name": name}
 	if str(p.get("steamId", "")) != "":
 		out["steamId"] = str(p["steamId"])
 	for k in ["score", "kills", "deaths", "assist", "seconds"]:

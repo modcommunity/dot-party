@@ -17,8 +17,8 @@ Two halves, and they are in very different states on the site:
 | | Site routes | Here |
 | --- | --- | --- |
 | The **game server** tracking a party | Exist: `/api/integration/v1/party/{id,state,session,match,create,end}` | `DotPartyServer` |
-| The **game server** learning it is booked | **Added** on website-city branch `feat/game-backbone`, not yet deployed — the site's own audit had said a private booking is never sent to the server | `DotPartyReservations`, via `party/reservation` |
-| The **player** managing their party | **Added** on website-city branch `feat/game-backbone`, not yet deployed — before, only tRPC behind the website's session cookie, which a game client does not hold | `DotPartyBackendApp`, via `/api/app/v1/party/*` |
+| The **game server** learning it is booked | **Added** on website-city `feat/game-backbone`, merged to its `main` (2026-09-26 check; deployment is the operator's) — the site's own audit had said a private booking is never sent to the server | `DotPartyReservations`, via `party/reservation` |
+| The **player** managing their party | **Added** on website-city `feat/game-backbone`, merged to its `main` (2026-09-26 check; deployment is the operator's) — before, only tRPC behind the website's session cookie, which a game client does not hold | `DotPartyBackendApp`, via `/api/app/v1/party/*` |
 
 The added routes are listed in [docs/backbone-contract.md](docs/backbone-contract.md), each a wrapper over a function the site already had, with that function's own input names. Both halves have been driven from Godot against a live dev server of that branch, 25 checks, none failing.
 

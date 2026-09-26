@@ -100,6 +100,13 @@ func kick(party_id: String, user_id: String, ban: bool = false) -> DotResult:
 
 
 func set_role(party_id: String, user_id: String, role: DotPartyMember.Role) -> DotResult:
+	# Refused here, as [DotPartyLocalHub] refuses it: the site's `party/role` takes CO_HOST
+	# or MEMBER only (`src/types/party/member.ts`), so HOST reached it as a bare 400 that
+	# said nothing about what to do instead.
+	if role == DotPartyMember.Role.HOST:
+		return DotResult.fail(
+			DotError.CODE_INVALID, "Hand the party over instead.", "party.role.deny.host"
+		)
 	return await _call("POST", "party/role", {
 		"id": party_id, "userId": user_id, "role": DotPartyMember.ROLE_NAMES[role],
 	})

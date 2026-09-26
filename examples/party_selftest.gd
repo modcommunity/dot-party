@@ -16,7 +16,7 @@ extends Node
 ## [/codeblock]
 
 const SECTIONS := 9
-const CHECKS := 135
+const CHECKS := 137
 
 var _passed := 0
 var _failed := 0
@@ -630,6 +630,22 @@ func _test_app_backend() -> void:
 	var missing := await app.heartbeat("4471")
 	_check(not missing.ok and missing.error.message.contains("no app party routes yet"), "a 404 says the site has not grown the routes yet")
 	_check(missing.error.detail == "", "and leaves the refusal-key field empty, since there is no key to render")
+
+	# HOST is not a role the site sets (`party/role` takes CO_HOST or MEMBER), and the local
+	# hub already refused it; the app backend sent it and got a bare 400.
+	var before := sent.size()
+	var promoted := await app.set_role("4471", "u2", DotPartyMember.Role.HOST)
+	_check(
+		not promoted.ok and promoted.error.detail == "party.role.deny.host" and sent.size() == before,
+		"making somebody HOST is refused before any request, as the local hub refuses it"
+	)
+
+	# A nameless player is left out of what the server reports, rather than refusing it all.
+	_check(
+		DotPartyServer._wire_player({"name": "  ", "steamId": "7656"}).is_empty()
+			and DotPartyServer._wire_player({"name": "Ada"}) == {"name": "Ada"},
+		"a player with no name is left out of a report, since the site refuses a whole report for one"
+	)
 
 	_check(not (await app.fetch("x1")).ok, "a malformed id is refused before a request is made")
 

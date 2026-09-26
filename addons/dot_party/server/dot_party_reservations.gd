@@ -279,7 +279,9 @@ func sync() -> DotResult:
 ## Fetches bookings from the backbone as this server, through any object with
 ## [code]get_integration(path, query)[/code] — dot-auth's [code]DotBackboneClient[/code].
 ##
-## The route, [code]GET party/reservation[/code], is one website-city does not serve yet;
+## The route, [code]GET party/reservation[/code], is served by website-city since its
+## `feat/game-backbone` work was merged to `main` (by 2026-09-26; whether a given site is
+## deployed with it is the operator's to know);
 ## it is specified in this repository's [code]docs/backbone-contract.md[/code].
 func use_backbone(client: Object) -> void:
 	fetch_fn = func() -> DotResult:

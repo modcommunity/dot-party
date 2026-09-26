@@ -1,6 +1,6 @@
 # The backbone contract
 
-What dot-party speaks, split into the routes website-city **already served** and the routes **added for this addon**. The added ones are implemented on website-city branch `feat/game-backbone` (not yet merged or deployed) and were driven from Godot against a live dev server: party create, join, the alreadyIn refusal, the roster, the ready view, a kick that the kicked player's `DotPartyClient` reports as a kick, and a private booking read by `DotPartyReservations` that admits the host and refuses a stranger. Every added route is a thin wrapper over a function the site already has, and uses that function's own input names, so the site-side work is plumbing rather than design.
+What dot-party speaks, split into the routes website-city **already served** and the routes **added for this addon**. The added ones were implemented on website-city branch `feat/game-backbone`, which is merged to website-city `main` (checked 2026-09-26; whether a given site is deployed with it cannot be known from here), and were driven from Godot against a live dev server: party create, join, the alreadyIn refusal, the roster, the ready view, a kick that the kicked player's `DotPartyClient` reports as a kick, and a private booking read by `DotPartyReservations` that admits the host and refuses a stranger. Every added route is a thin wrapper over a function the site already has, and uses that function's own input names, so the site-side work is plumbing rather than design.
 
 ## Already served — the game server's half
 
