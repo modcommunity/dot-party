@@ -1,8 +1,8 @@
 # The backbone contract
 
-What dot-party speaks, split into the routes website-city **already served** and the routes **added for this addon**. The added ones were implemented on website-city branch `feat/game-backbone`, which is merged to website-city `main` (checked 2026-09-26; whether a given site is deployed with it cannot be known from here), and were driven from Godot against a live dev server: party create, join, the alreadyIn refusal, the roster, the ready view, a kick that the kicked player's `DotPartyClient` reports as a kick, and a private booking read by `DotPartyReservations` that admits the host and refuses a stranger. Every added route is a thin wrapper over a function the site already has, and uses that function's own input names, so the site-side work is plumbing rather than design.
+What dot-party speaks: the game server's half under `/api/integration/v1/party/`, and the player's half under `/api/app/v1/party/`. Every route below is served by website-city `main` (checked against `src/app/api/integration/v1/party/` and `src/app/api/app/v1/party/`); whether a given site is deployed with it cannot be known from here. Every player-side route and the reservation route are thin wrappers over a function the site already had, using that function's own input names, so a contract change starts on the site.
 
-## Already served — the game server's half
+## The game server's half
 
 Under `/api/integration/v1`, authenticated by an integration credential (`Authorization: Bearer tmci_…`), stamped with `ts` (Unix **seconds**) and a `nonce`. dot-auth's `DotBackboneClient.post_integration` / `get_integration` does the stamping; `DotPartyServer` calls them by name.
 
@@ -17,9 +17,9 @@ Under `/api/integration/v1`, authenticated by an integration credential (`Author
 
 Shapes are the site's, documented in `website-city/docs/api/integration-api.md`. dot-party's suite parses the `GET party/{id}` example from that document verbatim.
 
-## Added — a game server learning it has been booked
+## A game server learning it has been booked
 
-The site's own audit: *"a private (locked) reservation is never sent to the game server through any integration endpoint."* This is the one route that closes that gap.
+Without this route a private (locked) reservation was never sent to the game server through any integration endpoint, so a server meant to hold its slots for a party had no way to learn which party.
 
 ### `GET /api/integration/v1/party/reservation` — scope `PARTY_READ`, server-scoped credential
 
@@ -38,13 +38,13 @@ The booking this server is under right now, and who it is for. The server is the
 }
 ```
 
-`reservation: null` when there is none. Only `ACTIVE` bookings whose window contains now. Implementation: `GetActiveReservation` in `src/lib/party/reserve.ts` plus the party's JOINED members, un-anonymised for the same reason `GET party/{id}` is — the server's job is to recognise them. `DotPartyReservations.use_backbone(client)` polls it every 30 s and parses it with `parse_backbone`.
+`reservation: null` when there is none. Only `ACTIVE` bookings whose window contains now (`GetActiveReservation` alone answers "ends in the future", which would also match a booking approved for later). Built from `GetActiveReservation` in `src/lib/party/reserve.ts` plus the party's JOINED members, un-anonymised for the same reason `GET party/{id}` is — the server's job is to recognise them. `DotPartyReservations.use_backbone(client)` polls it every 30 s and parses it with `parse_backbone`.
 
 **Why members carry `userId`:** a dot-server session's uid after dot-auth is `backbone:<userId>`. Matching on display names would let a stranger in by calling themselves the host.
 
-## Added — the player's half
+## The player's half
 
-Under `/api/app/v1`, authenticated by the player's app token (`Authorization: Bearer <AppToken>`), in the app API's envelope: `{ ok: true, data }` or `{ ok: false, code, message, retryAfter? }` (`src/types/app-api/contract.ts`). For a refusal, `code` is the site's i18n key — `party.join.deny.full` — exactly as the tRPC procedures already throw it. Each route must allow `GAME` tokens (`allowGame`), because that is the token a game holds.
+Under `/api/app/v1`, authenticated by the player's app token (`Authorization: Bearer <AppToken>`), in the app API's envelope: `{ ok: true, data }` or `{ ok: false, code, message, retryAfter? }` (`src/types/app-api/contract.ts`). For a refusal, `code` is the site's i18n key — `party.join.deny.full` — exactly as the tRPC procedures already throw it. Each route allows `GAME` tokens (`HandleAppGameAction` sets `allowGame`), because that is the token a game holds. **A `GAME` credential reaches only its own app's parties** (`AssertPartyInGameApp` in `src/lib/party/app-view.ts`): a party in another game is refused with `party.deny.otherApp`. A device credential is bound to no app and is not narrowed.
 
 | Route | Wraps | Body / query | `data` |
 | --- | --- | --- | --- |
@@ -71,7 +71,7 @@ Under `/api/app/v1`, authenticated by the player's app token (`Authorization: Be
 | `POST party/reserve` | `ReserveServerForParty` | `ReserveServerInput` | the reservation |
 | `POST party/reserve/cancel` | `reserve.cancel` | `{ reservationId }` | the reservation |
 
-Rate limits should be the tRPC procedures' own (`join` 30/5 min, `reserve.request` 10/5 min, `search.start` 20/5 min).
+Rate limits are the website's own buckets (`PARTY_LIMITS` in `src/lib/party/limits.ts`, e.g. `join` 30 / 300 s, `reserve` 10 / 300 s, `start` 20 / 300 s), shared with the website so alternating surfaces buys no extra attempts. `GET party/mine` has a bucket of its own (`PARTY_APP_MINE_LIMIT`, 600 / 300 s) sized for three clients on one account polling the ready round at `PARTY_APP_MINE_POLL_SEC` (1.5 s), which is `DotPartyConfig.ready_poll_sec`; a faster client poll runs a second install into 429s mid-round.
 
 ### Why the connect URL matters
 
