@@ -1,0 +1,15 @@
+# frame-hazards
+# Baselines only shrink: scripts/<gate> --update lowers or drops entries and refuses to add.
+addons/dot_party/runtime/dot_party_client.gd::_diff_members::alloc_dict	2
+addons/dot_party/runtime/dot_party_client.gd::_fill_connect::duplicate	1
+addons/dot_party/runtime/dot_party_client.gd::_fill_connect::string_build	1
+addons/dot_party/runtime/dot_party_client.gd::_follow::string_build	1
+addons/dot_party/runtime/dot_party_client.gd::_maybe_follow::string_build	2
+addons/dot_party/server/dot_party_server.gd::_players::alloc_array	1
+addons/dot_party/server/dot_party_server.gd::_post::string_build	1
+addons/dot_party/server/dot_party_server.gd::_process::string_build	1
+addons/dot_party/server/dot_party_server.gd::_wire_player::alloc_dict	1
+addons/dot_party/server/dot_party_server.gd::_wire_player::string_build	3
+addons/dot_party/server/dot_party_server.gd::refresh::string_build	1
+addons/dot_party/server/dot_party_server.gd::report_state::alloc_dict	1
+addons/dot_party/server/dot_party_server.gd::report_state::string_build	1

@@ -1,0 +1,24 @@
+# comments
+# Baselines only shrink: scripts/<gate> --update lowers or drops entries and refuses to add.
+addons/dot_party/backend/dot_party_backend.gd::long_block	1
+addons/dot_party/backend/dot_party_backend_app.gd::history	1
+addons/dot_party/backend/dot_party_backend_app.gd::long_block	4
+addons/dot_party/backend/dot_party_local_hub.gd::banner	6
+addons/dot_party/backend/dot_party_local_hub.gd::long_block	1
+addons/dot_party/core/dot_party.gd::long_block	2
+addons/dot_party/core/dot_party_member.gd::long_block	3
+addons/dot_party/core/dot_party_ready.gd::long_block	1
+addons/dot_party/core/dot_party_reservation.gd::long_block	1
+addons/dot_party/core/dot_party_reserve_policy.gd::long_block	3
+addons/dot_party/dot_party_config.gd::long_block	1
+addons/dot_party/dot_party_plugin.gd::long_block	1
+addons/dot_party/runtime/dot_party_client.gd::banner	1
+addons/dot_party/runtime/dot_party_client.gd::long_block	4
+addons/dot_party/server/dot_party_reservations.gd::banner	4
+addons/dot_party/server/dot_party_reservations.gd::history	1
+addons/dot_party/server/dot_party_reservations.gd::long_block	2
+addons/dot_party/server/dot_party_server.gd::banner	3
+addons/dot_party/server/dot_party_server.gd::long_block	1
+examples/party_selftest.gd::banner	10
+examples/party_selftest.gd::history	1
+examples/party_selftest.gd::long_block	1
