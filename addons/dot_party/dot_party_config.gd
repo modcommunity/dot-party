@@ -58,7 +58,7 @@ func cli_prefix() -> String:
 const CFG_ADDON := "dot-party"
 
 
-## Applies [param file_name] from `cfg/addons/dot_party/`, then the operator's `cfg/server/dot_party/`.
+## Applies [param file_name] from `cfg/addons/dot_party/`, then the operator's `cfg/server/addons/dot_party/`.
 ## A flat [param legacy_dir]/[param file_name] is still read (one WARN) while no new copy exists.
 ## Keys not starting `party_` belong to the deployment and are skipped; secrets stay file-only.
 func apply_cfg_file(file_name: String = "party.yml", legacy_dir: String = "res://cfg") -> DotResult:

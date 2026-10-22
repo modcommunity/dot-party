@@ -22,7 +22,7 @@ func _ready() -> void:
 func _run() -> void:
 	print("dot-party cfg self-test")
 	var addon_dir := "user://cfg/addons/" + FOLDER
-	var server_dir := "user://cfg/server/" + FOLDER
+	var server_dir := "user://cfg/server/addons/" + FOLDER
 	_clean(addon_dir, server_dir)
 	DotCfgLegacy.reset()
 

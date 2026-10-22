@@ -25,7 +25,7 @@ Read the family [CLAUDE.md](../../CLAUDE.md) first, and [docs/backbone.md](../..
 | `server/dot_party_reservations.gd` | `DotPartyReservations`: booking enforcement as `dot_ban_source` |
 | `dot_party_config.gd` | `DotPartyConfig`: poll, heartbeat, state-report and reservation-sync intervals |
 | `examples/party_selftest.tscn` | the suite, no network |
-| `examples/cfg_selftest.tscn` | `party.yml` through `DotPartyConfig.load_cfg`: `cfg/addons/dot_party/`, `cfg/server/dot_party/` over it, the flat `cfg/party.yml` shim (WARN once, removed 2026-12-31) |
+| `examples/cfg_selftest.tscn` | `party.yml` through `DotPartyConfig.load_cfg`: `cfg/addons/dot_party/`, `cfg/server/addons/dot_party/` over it, the flat `cfg/party.yml` shim (WARN once, removed 2026-12-31) |
 
 Paths except `examples/` are in `addons/dot_party/`.
 
