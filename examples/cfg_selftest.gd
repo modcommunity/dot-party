@@ -1,10 +1,7 @@
 extends Node
 
 ## The yml layout of dot-party's settings: new path, flat shim, operator layer.
-##
-## [codeblock]
-## timeout 120 godot --headless --path . res://examples/cfg_selftest.tscn
-## [/codeblock]
+## Run: [code]timeout 120 godot --headless --path . res://examples/cfg_selftest.tscn[/code]
 
 const FOLDER := "dot_party"
 const FILE := "party.yml"
