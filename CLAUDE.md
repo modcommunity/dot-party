@@ -31,7 +31,7 @@ Paths except `examples/` are in `addons/dot_party/`.
 
 ## Running and testing
 
-The family's two steps ([game-dev/CLAUDE.md](../../CLAUDE.md#validating-anything)), then `timeout 120 godot --headless --path . res://examples/party_selftest.tscn`. `_test_reservations` is the section to keep: a private booking admits only its party and still honours the ban list behind it, a public one holds seats while the party loads, and an outage leaves the booking in force. The suite cannot see differences between the local hub and the real site; a change to a request shape wants a run against a dev site.
+The family's two steps ([family CLAUDE.md](../../CLAUDE.md#validating-anything)), then `timeout 120 godot --headless --path . res://examples/party_selftest.tscn`. `_test_reservations` is the section to keep: a private booking admits only its party and still honours the ban list behind it, a public one holds seats while the party loads, and an outage leaves the booking in force. The suite cannot see differences between the local hub and the real site; a change to a request shape wants a run against a dev site.
 
 ## Rules that bite
 
